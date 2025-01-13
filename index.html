@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factorization Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #0056b3;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Factorization Tool</h1>
+    <form id="factorForm">
+        <label for="number">Enter a positive integer (max: 1,000,000):</label>
+        <input type="number" id="number" placeholder="e.g., 12" required />
+        <button type="submit">Calculate</button>
+    </form>
+    <div class="output" id="output"></div>
+
+    <script>
+        function getPositiveFactors(num) {
+            const factors = [];
+            for (let i = 1; i <= Math.sqrt(num); i++) {
+                if (num % i === 0) {
+                    factors.push(i);
+                    if (i !== num / i) factors.push(num / i);
+                }
+            }
+            return factors.sort((a, b) => a - b);
+        }
+
+        function primeFactorization(num) {
+            const factors = {};
+            let divisor = 2;
+            while (num > 1) {
+                while (num % divisor === 0) {
+                    factors[divisor] = (factors[divisor] || 0) + 1;
+                    num /= divisor;
+                }
+                divisor++;
+            }
+            return Object.entries(factors)
+                .map(([prime, power]) => `${prime}^${power}`)
+                .join(' x ');
+        }
+
+        function isPrime(num) {
+            if (num <= 1) return false;
+            for (let i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        }
+
+        document.getElementById('factorForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const output = document.getElementById('output');
+            const input = document.getElementById('number').value;
+            const num = parseFloat(input);
+
+            if (!Number.isInteger(num) || num <= 0 || num > 1000000) {
+                output.innerHTML = `<p class="error">Invalid input. Please enter a positive integer less than or equal to 1,000,000.</p>`;
+                return;
+            }
+
+            if (isPrime(num)) {
+                output.innerHTML = `
+                    <p><strong>Number:</strong> ${num}</p>
+                    <p><strong>Status:</strong> The number is a prime number.</p>
+                    <p><strong>Positive Factors:</strong> 1, ${num}</p>
+                    <p><strong>Number of Positive Factors:</strong> 2</p>
+                    <p><strong>Prime Factorization:</strong> ${num}^1</p>
+                `;
+                return;
+            }
+
+            const factors = getPositiveFactors(num);
+            const factorCount = factors.length;
+            const primeFactors = primeFactorization(num);
+
+            output.innerHTML = `
+                <p><strong>Number:</strong> ${num}</p>
+                <p><strong>Positive Factors:</strong> ${factors.join(', ')}</p>
+                <p><strong>Number of Positive Factors:</strong> ${factorCount}</p>
+                <p><strong>Prime Factorization:</strong> ${primeFactors}</p>
+            `;
+        });
+    </script>
+</body>
+</html>
